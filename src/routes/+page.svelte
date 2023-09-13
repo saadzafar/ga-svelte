@@ -35,6 +35,7 @@
 				// perfect score
 				running = false;
 			}
+			await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
 			await tick(); // To update the DOM
 		}
 	}
