@@ -24,6 +24,7 @@
 				const parent1 = selectParent();
 				const parent2 = selectParent();
 				let offspring = crossover(parent1, parent2);
+				// ~10% mutation chance in the offspring
 				if (Math.random() < 0.1) {
 					offspring = mutate(offspring);
 				}
@@ -35,8 +36,14 @@
 				// perfect score
 				running = false;
 			}
-			await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
-			await tick(); // To update the DOM
+
+			await new Promise(
+				(resolve) =>
+					setTimeout(() => {
+						tick(); // To update the DOM
+						resolve();
+					}, 1000) // 1-second delay
+			);
 		}
 	}
 
@@ -66,19 +73,24 @@
 		return result;
 	}
 
+	// Calculate the score for a random string based on correctness of character placement
 	function fitness(individual) {
 		let score = 0;
+		// Determines whether the character at any location is correctly placed in the string (as compared to target)
 		for (let i = 0; i < target.length; i++) {
 			if (individual[i] === target[i]) score++;
 		}
 		return score;
 	}
 
+	// Determine whether new random is better than existing string
 	function selectParent() {
 		// Tournament selection for simplicity
 		const tournamentSize = 5;
+		// Create a new random string of 5 characters
 		let best = randomString();
 		for (let i = 1; i < tournamentSize; i++) {
+			// Select random string from current population
 			const contender = population[Math.floor(Math.random() * population.length)];
 			if (fitness(contender) > fitness(best)) {
 				best = contender;
@@ -87,11 +99,14 @@
 		return best;
 	}
 
+	// Merge parts of both passed strings based on a randomly calculated midpoint
 	function crossover(parent1, parent2) {
+		// Midpoint is calculated randomly to determine how mcuh of parent1 and parent2 will be in the child
 		const midpoint = Math.floor(Math.random() * target.length);
 		return parent1.substring(0, midpoint) + parent2.substring(midpoint);
 	}
 
+	// Replace a character at a random index in the child string with another randomly generated character
 	function mutate(individual) {
 		const index = Math.floor(Math.random() * target.length);
 		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
